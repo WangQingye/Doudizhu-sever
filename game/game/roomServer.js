@@ -23,7 +23,7 @@ p.p3Cards = [];
 p.dzCards = [];
 
 //当前信息
-p.curPlayerIndex = 0; //默认为0，游戏进程中为1，2，3
+p.curPlayerIndex = 1; //默认为0，游戏进程中为1，2，3
 
 /** 关于正在出的牌
  * 初步想法是记录牌型：

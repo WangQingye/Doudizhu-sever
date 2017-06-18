@@ -20,6 +20,7 @@ p.players = [];
 p.p1Cards = [];
 p.p2Cards = [];
 p.p3Cards = [];
+p.dzCards = [];
 
 //当前信息
 p.curPlayerIndex = 0; //默认为0，游戏进程中为1，2，3
@@ -56,16 +57,20 @@ p.curCard = {index:0 ,type: CARD_TYPE.ERROR_CARDS, small:0};
 p.initGame = function () {
     var cards = getNewCards54();
     this.p1Cards = cards.slice(0,17);
-    this.p2Cards = cards.slice(17,17);
-    this.p3Cards = cards.slice(34,17);
+    this.p2Cards = cards.slice(17,34);
+    this.p3Cards = cards.slice(34,51);
+    this.dzCards = cards.slice(51,54);
+    this.sendToOnePlayers({command:commands.ROOM_NOTIFY, content:{ state: 0, cards:this.p1Cards}}, 0);
+    this.sendToOnePlayers({command:commands.ROOM_NOTIFY, content:{ state: 0, cards:this.p2Cards}}, 1);
+    this.sendToOnePlayers({command:commands.ROOM_NOTIFY, content:{ state: 0, cards:this.p3Cards}}, 2);
     this.changeState(1);
 };
 
-//当前状态 2是结算，1是游戏中
+//当前状态 2是结算，1是游戏中, 0是第一次发牌
 p.changeState = function (state) {
     switch (state){
         case 1:
-            this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCard}});
+            this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCard}});
             break;
         case 2:
             this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:2}});
@@ -73,11 +78,18 @@ p.changeState = function (state) {
     }
 };
 
+
+//向房间的所有玩家发送信息
 p.sendToRoomPlayers = function (data) {
     for(var i = 0; i < this.players.length; i++)
     {
         this.players[i].ws.send(JSON.stringify(data));
     }
+};
+
+//向房间的某一个玩家发送信息
+p.sendToOnePlayers = function (data, index) {
+    this.players[index].ws.send(JSON.stringify(data));
 };
 
 p.handlePlayersQuest = function (index, data) {

@@ -55,7 +55,7 @@ const CARD_TYPE = {
     KINGBOMB_CARD : 13//王炸
 };
 //只记录最小的一张，特例比如4443，要记录4，注意这里的index是跟curPlayerIndex不一样
-p.curCard = {type: CARD_TYPE.NO_CARDS, small:0};
+p.curCards = {type: CARD_TYPE.NO_CARDS, small:0, cards:[]};
 
 p.initGame = function () {
     var cards = getNewCards54();
@@ -63,9 +63,9 @@ p.initGame = function () {
     this.p2Cards = cards.slice(17,34);
     this.p3Cards = cards.slice(34,51);
     this.dzCards = cards.slice(51,54);
-    this.sendToOnePlayers({command:commands.ROOM_NOTIFY, content:{ state: 0, cards:this.p1Cards}}, 0);
-    this.sendToOnePlayers({command:commands.ROOM_NOTIFY, content:{ state: 0, cards:this.p2Cards}}, 1);
-    this.sendToOnePlayers({command:commands.ROOM_NOTIFY, content:{ state: 0, cards:this.p3Cards}}, 2);
+    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, cards:this.p1Cards}}, 0);
+    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, cards:this.p2Cards}}, 1);
+    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, cards:this.p3Cards}}, 2);
     this.changeState(1);
 };
 
@@ -73,7 +73,7 @@ p.initGame = function () {
 p.changeState = function (state) {
     switch (state){
         case 1:
-            this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCard }});
+            this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCards }});
             break;
         case 2:
             this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:2}});
@@ -97,7 +97,7 @@ p.sendToOnePlayers = function (data, index) {
 
 //处理玩家请求
 p.handlePlayersQuest = function (index, data) {
-    var quest = data.content.quest;
+    var quest = data.content.command;
     var seq = data.seq;
     switch(quest)
     {
@@ -120,7 +120,7 @@ p.playCard = function (index, cards, seq) {
     this.sendToOnePlayers(index, {command:commands.PLAYER_PLAYCARD, seq:seq, code:0});
     //通知下一个出牌玩家和出的牌
     this.addCurIndex();
-    this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCard}});
+    this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCards}});
 };
 
 

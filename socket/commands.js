@@ -8,7 +8,9 @@ const commands = {
     LOGIN:3,
     MATCH_PLAYER:4,
     PLAY_GAME:5,
-    ROOM_NOTIFY:6
+    ROOM_NOTIFY:6,
+    PLAYER_PLAYCARD:7,
+    PLAYER_WANTDIZHU:8
 };
 
 module.exports = commands;

@@ -23,8 +23,11 @@ p.p3Cards = [];
 p.dzCards = [];
 
 //当前信息
-p.curPlayerIndex = 1; //默认为0，游戏进程中为1，2，3
-
+p.curPlayerIndex = 1; //暂时初始为1，游戏进程中为1，2，3
+p.addCurIndex = function () {
+    this.curPlayerIndex++;
+    this.curPlayerIndex = this.curPlayerIndex % 4;
+};
 /** 关于正在出的牌
  * 初步想法是记录牌型：
  * 单，对，三带一，顺子，连对，飞机，四带二，炸弹
@@ -36,7 +39,7 @@ p.curPlayerIndex = 1; //默认为0，游戏进程中为1，2，3
 //先定义可能出现的牌型
 const CARD_TYPE = {
     //各种牌型的对应数字
-    ERROR_CARDS : 0, //错误牌型
+    NO_CARDS : 0, //错误牌型
     SINGLE_CARD : 1, //单牌
     DOUBLE_CARD : 2, //对子
     THREE_CARD : 3,//3不带
@@ -52,7 +55,7 @@ const CARD_TYPE = {
     KINGBOMB_CARD : 13//王炸
 };
 //只记录最小的一张，特例比如4443，要记录4，注意这里的index是跟curPlayerIndex不一样
-p.curCard = {index:0 ,type: CARD_TYPE.ERROR_CARDS, small:0};
+p.curCard = {type: CARD_TYPE.NO_CARDS, small:0};
 
 p.initGame = function () {
     var cards = getNewCards54();
@@ -70,7 +73,7 @@ p.initGame = function () {
 p.changeState = function (state) {
     switch (state){
         case 1:
-            this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCard}});
+            this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCard }});
             break;
         case 2:
             this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:2}});
@@ -92,11 +95,36 @@ p.sendToOnePlayers = function (data, index) {
     this.players[index].ws.send(JSON.stringify(data));
 };
 
+//处理玩家请求
 p.handlePlayersQuest = function (index, data) {
     var quest = data.content.quest;
     var seq = data.seq;
-
+    switch(quest)
+    {
+        case commands.PLAYER_PLAYCARD:
+            this.playCard(index, data.content.cards, seq);
+            break;
+        case commands.PLAYER_WANTDIZHU:
+            this.wantDizhu(index, data.content, seq);
+            break;
+    }
 };
+
+p.playCard = function (index, cards, seq) {
+    //前后端都需要判断出牌是否符合规则
+    // if(cardPlayAble(this["p"+index+"Cards"], content.cards))
+    // {
+    //
+    // }
+    //告知玩家出牌成功
+    this.sendToOnePlayers(index, {command:commands.PLAYER_PLAYCARD, seq:seq, code:0});
+    //通知下一个出牌玩家和出的牌
+    this.addCurIndex();
+    this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCard}});
+};
+
+
+
 
 //取得一组打乱的牌(开局时)
 function getNewCards54() {

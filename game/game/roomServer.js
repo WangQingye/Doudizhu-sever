@@ -39,7 +39,8 @@ p.addCurIndex = function () {
 //先定义可能出现的牌型
 const CARD_TYPE = {
     //各种牌型的对应数字
-    NO_CARDS : 0, //错误牌型
+    NO_CARDS : -1, //前面没有牌（每次开始出牌）
+    ERROR_CARDS : 0, //错误牌型
     SINGLE_CARD : 1, //单牌
     DOUBLE_CARD : 2, //对子
     THREE_CARD : 3,//3不带
@@ -55,7 +56,7 @@ const CARD_TYPE = {
     KINGBOMB_CARD : 13//王炸
 };
 //只记录最小的一张，特例比如4443，要记录4，注意这里的index是跟curPlayerIndex不一样
-p.curCards = {type: CARD_TYPE.NO_CARDS, small:0, cards:[]};
+p.curCards = {type: CARD_TYPE.NO_CARDS, header:0, cards:[]};
 
 p.initGame = function () {
     var cards = getNewCards54();
@@ -63,9 +64,10 @@ p.initGame = function () {
     this.p2Cards = cards.slice(17,34);
     this.p3Cards = cards.slice(34,51);
     this.dzCards = cards.slice(51,54);
-    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, cards:this.p1Cards}}, 0);
-    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, cards:this.p2Cards}}, 1);
-    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, cards:this.p3Cards}}, 2);
+    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:this.p1Cards}}, 0);
+    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId,  cards:this.p2Cards}}, 1);
+    this.sendToOnePlayers({command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId,  cards:this.p3Cards}}, 2);
+    this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCards }});
     this.changeState(1);
 };
 
@@ -102,7 +104,7 @@ p.handlePlayersQuest = function (index, data) {
     switch(quest)
     {
         case commands.PLAYER_PLAYCARD:
-            this.playCard(index, data.content.cards, seq);
+            this.playCard(index, data.content.curCards, seq);
             break;
         case commands.PLAYER_WANTDIZHU:
             this.wantDizhu(index, data.content, seq);
@@ -110,13 +112,14 @@ p.handlePlayersQuest = function (index, data) {
     }
 };
 
-p.playCard = function (index, cards, seq) {
+p.playCard = function (index, curCards, seq) {
     //前后端都需要判断出牌是否符合规则
     // if(cardPlayAble(this["p"+index+"Cards"], content.cards))
     // {
     //
     // }
     //告知玩家出牌成功
+    this.curCards = curCards;
     this.sendToOnePlayers(index, {command:commands.PLAYER_PLAYCARD, seq:seq, code:0});
     //通知下一个出牌玩家和出的牌
     this.addCurIndex();

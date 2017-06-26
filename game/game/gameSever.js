@@ -10,19 +10,27 @@ exports.handMsg = function (ws, data) {
     switch (command)
     {
         case commands.MATCH_PLAYER:
-            matchPlayer(ws, data.content.name, data.seq, function (err, seq, players) {
+            matchPlayer(ws, data.content.name, data.seq, function (err, seq, players, roomId) {
                 if(err)
                 {
                     console.log('匹配失败');
                 }else
                 {
-                    var resp = {command:commands.MATCH_PLAYER, code:0, seq:seq, content:{players:players}};
+                    var resp = {command:commands.MATCH_PLAYER, code:0, seq:seq, content:{players:players, roomId:roomId}};
                     ws.send(JSON.stringify(resp));
                 }
             });
             break;
         case commands.PLAY_GAME:
+        case commands.PLAYER_PLAYCARD:
             playGame(ws, data);
+            break;
+        case commands.WS_CLOSE:
+            /**如果他还在排队就移除排队队列*/
+            if (queue.indexOf(ws) !== -1)
+            {
+                queue.splice(queue.indexOf(ws),1);
+            }
             break;
     }
 };
@@ -45,7 +53,7 @@ function matchPlayer(ws, name, seq, callBack) {
         var roomPlayers = [];
         for(var i = 0; i < 3; i++)
         {
-            players[i].callback(null, queue[i].seq, names);
+            players[i].callback(null, queue[i].seq, names, roomIndex);
             roomPlayers.push({ws:players[i].ws, name:players[i].name});
         }
 
@@ -55,6 +63,7 @@ function matchPlayer(ws, name, seq, callBack) {
         rooms[room.roomId] = room;
         room.players = roomPlayers;
         room.initGame();
+        queue = [];//每匹配到一次玩家就清空一次排队队列
     }
 }
 

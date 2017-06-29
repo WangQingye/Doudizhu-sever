@@ -174,6 +174,7 @@ p.wantDizhu = function (index, content, seq) {
         this.sendToOnePlayers(index, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:cards1}});
         this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, dizhu:this.curPlayerIndex, nowScore:this.nowScore}});
         this.changeState(1);
+        console.log();
     }else
     {
         this.addCurIndex();

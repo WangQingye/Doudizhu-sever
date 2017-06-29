@@ -23,6 +23,7 @@ exports.handMsg = function (ws, data) {
             break;
         case commands.PLAY_GAME:
         case commands.PLAYER_PLAYCARD:
+        case commands.PLAYER_WANTDIZHU:
             playGame(ws, data);
             break;
         case commands.WS_CLOSE:

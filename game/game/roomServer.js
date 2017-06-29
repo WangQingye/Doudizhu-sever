@@ -74,6 +74,11 @@ p.initGame = function () {
     this.changeState(1);
 };
 
+p.startWantDizhu = function () {
+    this.curPlayerIndex = Math.ceil(Math.random() * 3);
+    this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, curPlayerIndex:this.curPlayerIndex, nowScore:0}});
+};
+
 //当前状态 2是结算，1是游戏中, 0是第一次发牌
 p.changeState = function (state) {
     switch (state){
@@ -86,20 +91,6 @@ p.changeState = function (state) {
     }
 };
 
-
-//向房间的所有玩家发送信息
-p.sendToRoomPlayers = function (data) {
-    for(var i = 0; i < this.players.length; i++)
-    {
-        this.players[i].ws.send(JSON.stringify(data));
-    }
-};
-
-//向房间的某一个玩家发送信息
-p.sendToOnePlayers = function (index, data) {
-    console.log('132123', index);
-    this.players[index - 1].ws.send(JSON.stringify(data));
-};
 
 //处理玩家请求
 p.handlePlayersQuest = function (index, data) {
@@ -117,6 +108,8 @@ p.handlePlayersQuest = function (index, data) {
     }
 };
 
+p.nowBigger = 0; //这个数据用来记录当前牌最大的那个人
+p.passNum = 0; //这个数据用来记录有几个人点了pass，如果有2个，说明要重新出牌了。
 p.playCard = function (index, curCards, seq) {
     //前后端都需要判断出牌是否符合规则
     // if(cardPlayAble(this["p"+index+"Cards"], content.cards))
@@ -127,35 +120,52 @@ p.playCard = function (index, curCards, seq) {
     this.sendToOnePlayers(index, {command:commands.PLAYER_PLAYCARD, seq:seq, code:0});
 
     //如果出了牌，就替换最新的当前牌
-    if(curCards.cards.length !== 0)
+    if(curCards.type !== -2)
     {
         this.curCards = curCards;
-    }else//如果没有牌，说明是点击了过牌
+    }else//有人点击了过牌
     {
         this.passNum++;
         if(this.passNum === 1) //第一次点击的时候记录，第二次因为curindex已经变了所以不记录
         {
             this.nowBigger = this.curPlayerIndex - 1 < 1  ? 1 : this.curPlayerIndex - 1;
             console.log('有一个玩家点击了过牌现在牌最大的玩家是'+this.nowBigger);
+            this.curCards.type = -2;
         }else if(this.passNum === 2) //连续两个人点击了过，说明要重新发起出牌流程，而起始就是之前最大的那个人
         {
             console.log('有两个玩家点击了过牌');
             this.passNum = 0;
             this.curPlayerIndex = this.nowBigger;
             this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:{type: CARD_TYPE.NO_CARDS, header:0, cards:[]}}});
+            this.nowBigger = 0;
             return;
         }
     }
-
-    //通知下一个出牌玩家和出的牌
+    //通知下一个玩家和出的牌
     this.addCurIndex();
     this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCards}});
 };
 
-p.nowBigger = 0; //这个数据用来记录当前牌最大的那个人
-p.passNum = 0; //这个数据用来记录有几个人点了pass，如果有2个，说明要重新出牌了。
+p.nowScore = 0; //记录当前抢地主到几分了
+p.wantDizhu = function (index, content, seq) {
+    console.log('告知玩家叫分成功');
+    var score = content.score;
+    this.sendToOnePlayers(index, {command:commands.PLAYER_PLAYCARD, seq:seq, code:0});
+};
 
+//向房间的所有玩家发送信息
+p.sendToRoomPlayers = function (data) {
+    for(var i = 0; i < this.players.length; i++)
+    {
+        this.players[i].ws.send(JSON.stringify(data));
+    }
+};
 
+//向房间的某一个玩家发送信息
+p.sendToOnePlayers = function (index, data) {
+    console.log('132123', index);
+    this.players[index - 1].ws.send(JSON.stringify(data));
+};
 
 //取得一组打乱的牌(开局时)
 function getNewCards54() {

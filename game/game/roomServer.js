@@ -156,10 +156,12 @@ p.wantDizhu = function (index, content, seq) {
     if(score ===3)
     {
         var cards = this['p'+index+'Cards'].concat(this.dzCards);
+        console.log('dizhupai',cards);
         this.sendToOnePlayers(index, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:cards}});
         this.dizhu = index;
         this.curPlayerIndex = index;
         this.changeState(1);
+        return;
     }else if(score > this.nowScore)
     {
         this.nowScore = score;
@@ -167,10 +169,14 @@ p.wantDizhu = function (index, content, seq) {
     }
     if(this.wantDizhuTimes === 3)
     {
+        var cards1 = this['p'+index+'Cards'].concat(this.dzCards);
+        console.log('dizhupai',cards1);
+        this.sendToOnePlayers(index, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:cards1}});
         this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, dizhu:this.curPlayerIndex, nowScore:this.nowScore}});
         this.changeState(1);
     }else
     {
+        this.addCurIndex();
         this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, curPlayerIndex:this.curPlayerIndex, nowScore:this.nowScore}});
     }
 

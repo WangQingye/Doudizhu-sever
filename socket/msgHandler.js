@@ -10,8 +10,9 @@ var emitter = new events.EventEmitter();
 // addEvent(commands.LOGIN, loginHandler);
 addEvent(commands.MATCH_PLAYER, gameSever);
 addEvent(commands.PLAY_GAME, gameSever);
-addEvent(commands.WS_CLOSE, gameSever);
 addEvent(commands.PLAYER_PLAYCARD, gameSever);
+addEvent(commands.PLAYER_WANTDIZHU, gameSever);
+addEvent(commands.WS_CLOSE, gameSever);
 
 function addEvent(command, handler) {
     emitter.on(command, function (ws, data) {

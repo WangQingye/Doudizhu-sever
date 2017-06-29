@@ -70,16 +70,10 @@ p.initGame = function () {
     this.sendToOnePlayers(1, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:this.p1Cards}});
     this.sendToOnePlayers(2, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId,  cards:this.p2Cards}});
     this.sendToOnePlayers(3, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId,  cards:this.p3Cards}});
-    this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCards }});
-    this.changeState(1);
+    this.changeState(3);
 };
 
-p.startWantDizhu = function () {
-    this.curPlayerIndex = Math.ceil(Math.random() * 3);
-    this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, curPlayerIndex:this.curPlayerIndex, nowScore:0}});
-};
-
-//当前状态 2是结算，1是游戏中, 0是第一次发牌
+//当前状态 2是结算，1是游戏中, 3是抢地主
 p.changeState = function (state) {
     switch (state){
         case 1:
@@ -87,6 +81,10 @@ p.changeState = function (state) {
             break;
         case 2:
             this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:2}});
+            break;
+        case 3:
+            this.curPlayerIndex = Math.ceil(Math.random() * 3);
+            this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, curPlayerIndex:this.curPlayerIndex, nowScore:0}});
             break;
     }
 };
@@ -147,10 +145,35 @@ p.playCard = function (index, curCards, seq) {
 };
 
 p.nowScore = 0; //记录当前抢地主到几分了
+p.dizhu = 0; //记录几号玩家是地主
+p.wantDizhuTimes = 0; //记录是第几个玩家开始抢
 p.wantDizhu = function (index, content, seq) {
-    console.log('告知玩家叫分成功');
     var score = content.score;
-    this.sendToOnePlayers(index, {command:commands.PLAYER_PLAYCARD, seq:seq, code:0});
+    this.wantDizhuTimes++;
+    console.log('告知玩家叫分成功');
+    this.sendToOnePlayers(index, {command:commands.PLAYER_WANTDIZHU, seq:seq, code:0});
+    //到3分了说明有人已经抢到地主
+    if(score ===3)
+    {
+        var cards = this['p'+index+'Cards'].concat(this.dzCards);
+        this.sendToOnePlayers(index, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:cards}});
+        this.dizhu = index;
+        this.curPlayerIndex = index;
+        this.changeState(1);
+    }else if(score > this.nowScore)
+    {
+        this.nowScore = score;
+        this.dizhu = index;
+    }
+    if(this.wantDizhuTimes === 3)
+    {
+        this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, dizhu:this.curPlayerIndex, nowScore:this.nowScore}});
+        this.changeState(1);
+    }else
+    {
+        this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, curPlayerIndex:this.curPlayerIndex, nowScore:this.nowScore}});
+    }
+
 };
 
 //向房间的所有玩家发送信息

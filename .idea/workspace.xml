@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b3968b00-91f5-4656-8afe-3fb00f6a2bb4" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/game/gameSever.js" afterPath="$PROJECT_DIR$/game/game/gameSever.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/game/game/roomServer.js" afterPath="$PROJECT_DIR$/game/game/roomServer.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -74,10 +73,10 @@
       <file leaf-file-name="roomServer.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/game/game/roomServer.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="451">
-              <caret line="158" column="5" lean-forward="true" selection-start-line="158" selection-start-column="5" selection-end-line="158" selection-end-column="5" />
+            <state relative-caret-position="822">
+              <caret line="171" column="9" lean-forward="true" selection-start-line="171" selection-start-column="9" selection-end-line="171" selection-end-column="9" />
               <folding>
-                <element signature="e#3161#4428#0" expanded="false" />
+                <element signature="e#3035#4302#0" expanded="false" />
                 <element signature="n#!!block;n#getNewCards54#0" expanded="false" />
               </folding>
             </state>
@@ -298,7 +297,7 @@
       <workItem from="1498552461440" duration="8231000" />
       <workItem from="1498632220348" duration="1555000" />
       <workItem from="1498643057757" duration="621000" />
-      <workItem from="1498705214272" duration="4519000" />
+      <workItem from="1498705214272" duration="7089000" />
     </task>
     <task id="LOCAL-00001" summary="增加断线，接收出牌消息">
       <created>1498462018318</created>
@@ -314,16 +313,23 @@
       <option name="project" value="LOCAL" />
       <updated>1498561703683</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="抢地主相关">
+      <created>1498721464065</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1498721464065</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="54500000" />
+    <option name="totallyTimeSpent" value="57070000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16596417" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32982087" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3286334" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -351,7 +357,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="增加断线，接收出牌消息" />
     <MESSAGE value="出牌流程，过" />
-    <option name="LAST_COMMIT_MESSAGE" value="出牌流程，过" />
+    <MESSAGE value="抢地主相关" />
+    <option name="LAST_COMMIT_MESSAGE" value="抢地主相关" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -399,7 +406,7 @@
         <state relative-caret-position="4110">
           <caret line="137" column="29" lean-forward="false" selection-start-line="137" selection-start-column="29" selection-end-line="137" selection-end-column="88" />
           <folding>
-            <element signature="e#3161#4428#0" expanded="false" />
+            <element signature="e#3035#4302#0" expanded="false" />
             <element signature="n#!!block;n#getNewCards54#0" expanded="false" />
           </folding>
         </state>
@@ -444,7 +451,7 @@
         <state relative-caret-position="1560">
           <caret line="52" column="31" lean-forward="true" selection-start-line="52" selection-start-column="31" selection-end-line="52" selection-end-column="31" />
           <folding>
-            <element signature="e#3161#4428#0" expanded="false" />
+            <element signature="e#3035#4302#0" expanded="false" />
             <element signature="n#!!block;n#getNewCards54#0" expanded="false" />
           </folding>
         </state>
@@ -489,7 +496,7 @@
         <state relative-caret-position="3510">
           <caret line="117" column="2" lean-forward="true" selection-start-line="117" selection-start-column="2" selection-end-line="117" selection-end-column="2" />
           <folding>
-            <element signature="e#3161#4428#0" expanded="false" />
+            <element signature="e#3035#4302#0" expanded="false" />
             <element signature="n#!!block;n#getNewCards54#0" expanded="false" />
           </folding>
         </state>
@@ -541,7 +548,7 @@
         <state relative-caret-position="2610">
           <caret line="104" column="5" lean-forward="true" selection-start-line="104" selection-start-column="5" selection-end-line="104" selection-end-column="5" />
           <folding>
-            <element signature="e#3161#4428#0" expanded="false" />
+            <element signature="e#3035#4302#0" expanded="false" />
             <element signature="n#!!block;n#getNewCards54#0" expanded="false" />
           </folding>
         </state>
@@ -586,7 +593,7 @@
         <state relative-caret-position="2580">
           <caret line="86" column="0" lean-forward="false" selection-start-line="83" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
           <folding>
-            <element signature="e#3161#4428#0" expanded="false" />
+            <element signature="e#3035#4302#0" expanded="false" />
             <element signature="n#!!block;n#getNewCards54#0" expanded="false" />
           </folding>
         </state>
@@ -696,10 +703,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/game/game/roomServer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="451">
-          <caret line="158" column="5" lean-forward="true" selection-start-line="158" selection-start-column="5" selection-end-line="158" selection-end-column="5" />
+        <state relative-caret-position="822">
+          <caret line="171" column="9" lean-forward="true" selection-start-line="171" selection-start-column="9" selection-end-line="171" selection-end-column="9" />
           <folding>
-            <element signature="e#3161#4428#0" expanded="false" />
+            <element signature="e#3035#4302#0" expanded="false" />
             <element signature="n#!!block;n#getNewCards54#0" expanded="false" />
           </folding>
         </state>

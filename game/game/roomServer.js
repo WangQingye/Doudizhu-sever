@@ -80,7 +80,7 @@ p.changeState = function (state) {
             this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCards }});
             break;
         case 2:
-            this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:2}});
+            this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{state:2, scores:this.scores}});
             break;
         case 3:
             this.curPlayerIndex = Math.ceil(Math.random() * 3);
@@ -114,6 +114,13 @@ p.playCard = function (index, curCards, seq) {
     // {
     //
     // }
+    if(curCards.cards.length !== 0)
+    {
+        if(!this.removeCards(index ,curCards.cards))
+        {
+            console.log('有人出了一张他没有的牌？！')
+        }
+    }
     console.log('告知玩家出牌成功');
     this.sendToOnePlayers(index, {command:commands.PLAYER_PLAYCARD, seq:seq, code:0});
 
@@ -121,12 +128,13 @@ p.playCard = function (index, curCards, seq) {
     if(curCards.type !== -2)
     {
         this.curCards = curCards;
+        this.passNum = 0; //每次有人出了牌，都要重新计算不要次数
     }else//有人点击了过牌
     {
         this.passNum++;
         if(this.passNum === 1) //第一次点击的时候记录，第二次因为curindex已经变了所以不记录
         {
-            this.nowBigger = this.curPlayerIndex - 1 < 1  ? 1 : this.curPlayerIndex - 1;
+            this.nowBigger = this.curPlayerIndex - 1 < 1  ? 3 : this.curPlayerIndex - 1;
             console.log('有一个玩家点击了过牌现在牌最大的玩家是'+this.nowBigger);
             this.curCards.type = -2;
         }else if(this.passNum === 2) //连续两个人点击了过，说明要重新发起出牌流程，而起始就是之前最大的那个人
@@ -143,6 +151,61 @@ p.playCard = function (index, curCards, seq) {
     this.addCurIndex();
     this.sendToRoomPlayers({command:commands.PLAY_GAME, content:{ state:1, curPlayerIndex:this.curPlayerIndex, curCard:this.curCards}});
 };
+p.removeCards = function (index, cards) {
+    var cardGroup = this['p'+index+'Cards'];
+    console.log('cards',cards);
+    console.log('cardGroup',cardGroup);
+    var havaThisCard;
+    for(var i = 0; i < cards.length; i++)
+    {
+        havaThisCard = false;
+        for(var j = 0; j < cardGroup.length; j++)
+        {
+            if(cards[i] === cardGroup[j])
+            {
+                havaThisCard = true;
+                console.log('zhixing');
+                cardGroup.splice(j,1);
+                //某个玩家出完牌了
+                if(cardGroup.length === 0)
+                {
+                    this.countScore(index); //算分
+                    this.changeState(2);
+                }
+                break;
+            }
+        }
+        if(!havaThisCard) return false;
+    }
+    return true;
+};
+
+p.zhaTimes = 0; //用来记录翻倍次数
+p.scores = {}; //本局得分
+p.countScore = function (index) {
+    var score = this.nowScore;
+    for(var i = 0; i < this.zhaTimes; i++)
+    {
+        score = score * 2;
+    }
+    var other1 = index - 1 < 1 ? 3 : index - 1;
+    var other2 = index + 1 > 3 ? 1 : index + 1;
+    var dizhu = this.dizhu;
+    var obj = {};
+    if(index === dizhu)
+    {
+        obj[other1] = -1 * score;
+        obj[other2] = -1 * score;
+        obj[dizhu] = 2 * score;
+    }else
+    {
+        obj[other1] = score;
+        obj[other2] = score;
+        obj[dizhu] = -2 * score;
+    }
+    this.scores = obj;
+};
+
 
 p.nowScore = 0; //记录当前抢地主到几分了
 p.dizhu = 0; //记录几号玩家是地主
@@ -155,9 +218,9 @@ p.wantDizhu = function (index, content, seq) {
     //到3分了说明有人已经抢到地主
     if(score ===3)
     {
-        var cards = this['p'+index+'Cards'].concat(this.dzCards);
-        console.log('dizhupai',cards);
-        this.sendToOnePlayers(index, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:cards}});
+        this.nowScore = score;
+        this['p'+index+'Cards'] = this['p'+index+'Cards'].concat(this.dzCards);
+        this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, dizhu:this.curPlayerIndex, dizhuCards:this.dzCards, nowScore:this.nowScore}});
         this.dizhu = index;
         this.curPlayerIndex = index;
         this.changeState(1);
@@ -169,10 +232,9 @@ p.wantDizhu = function (index, content, seq) {
     }
     if(this.wantDizhuTimes === 3)
     {
-        var cards1 = this['p'+index+'Cards'].concat(this.dzCards);
-        console.log('dizhupai',cards1);
-        this.sendToOnePlayers(index, {command:commands.PLAY_GAME, content:{ state: 0, roomId: this.roomId, cards:cards1}});
-        this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, dizhu:this.curPlayerIndex, nowScore:this.nowScore}});
+        this['p'+index+'Cards'] = this['p'+index+'Cards'].concat(this.dzCards);
+        this.sendToRoomPlayers({command:commands.PLAYER_WANTDIZHU, content:{ state:3, dizhu:this.dizhu, dizhuCards:this.dzCards, nowScore:this.nowScore}});
+        this.curPlayerIndex = this.dizhu;
         this.changeState(1);
         console.log();
     }else
@@ -193,7 +255,6 @@ p.sendToRoomPlayers = function (data) {
 
 //向房间的某一个玩家发送信息
 p.sendToOnePlayers = function (index, data) {
-    console.log('132123', index);
     this.players[index - 1].ws.send(JSON.stringify(data));
 };
 

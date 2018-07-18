@@ -201,6 +201,7 @@ p.countScore = function (index) {
     {
         obj[other1] = score;
         obj[other2] = score;
+        obj[index] = score;
         obj[dizhu] = -2 * score;
     }
     this.scores = obj;

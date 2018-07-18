@@ -28,10 +28,7 @@ exports.handMsg = function (ws, data) {
             break;
         case commands.WS_CLOSE:
             /**如果他还在排队就移除排队队列*/
-            if (queue.indexOf(ws) !== -1)
-            {
-                queue.splice(queue.indexOf(ws),1);
-            }
+            wsExit(ws);
             break;
     }
 };
@@ -92,6 +89,17 @@ function userExit(name) {
     for(var i = 0; i < queue.length; i++)
     {
         if(queue[i].name === name)
+        {
+            queue.splice(i,1);
+            break;
+        }
+    }
+}
+
+function wsExit(ws) {
+    for(var i = 0; i < queue.length; i++)
+    {
+        if(queue[i].ws === ws)
         {
             queue.splice(i,1);
             break;
